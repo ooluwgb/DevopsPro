@@ -1,64 +1,81 @@
 #!/bin/bash
 
-#OLUWANIFEMI OLUWAGBEMILA
+# Author: Oluwanifemi Oluwagbemila
+# Updated by: ChatGPT
+# Script to update an Ubuntu machine, install Docker and Jenkins, and add Jenkins to the Docker group.
 
-#UPDATE UBUNTU LINUX MACHINE V20.04
-echo Updating Machine.........
-sudo apt-get update
-sleep 4
-echo
-echo
-echo
+# Function to log messages
+log() {
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1"
+}
 
-#INSTALL DOCKER ON UBUNTU V20.04
-echo Installing docker on UBuntu Machine.........
+# Update Ubuntu machine
+log "Updating Machine..."
+sudo apt-get update -y && sudo apt-get upgrade -y
+if [ $? -ne 0 ]; then
+    log "Failed to update the machine."
+    exit 1
+fi
+log "Machine updated successfully."
+
+# Install Docker
+log "Installing Docker..."
 sudo apt-get install -y docker.io
-#sleep 4
-#echo
-#echo
-#echo
+if [ $? -ne 0 ]; then
+    log "Failed to install Docker."
+    exit 1
+fi
+log "Docker installed successfully."
 
-#INSTALL JENKINS 
-#Install all dependencies for jenkins
-#echo Installing all dependencies needed for jenkins to run...........
-#sudo apt-get install -y default-jre
-#sudo apt-get install -y default-jdk
-#sleep 4
-#echo
-#echo
-#echo
-#Install jenkins package
+# Start and enable Docker service
+log "Starting and enabling Docker service..."
+sudo systemctl start docker
+sudo systemctl enable docker
+if [ $? -ne 0 ]; then
+    log "Failed to start or enable Docker service."
+    exit 1
+fi
+log "Docker service started and enabled."
 
-#echo Installing Jenkins ........
+# Install Jenkins
+log "Installing Jenkins dependencies..."
+sudo apt-get install -y openjdk-11-jre openjdk-11-jdk
+if [ $? -ne 0 ]; then
+    log "Failed to install Jenkins dependencies."
+    exit 1
+fi
+log "Jenkins dependencies installed successfully."
 
-#wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-#sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-#sudo apt update
-#sudo apt install -y jenkins
-#sleep 4
-#echo
-#echo
-#echo
-#STARTING  UP JENKINS PACKAGE
-#echo All task COMPLETED!!!!
-#echo
-#echo Jenkins Package should be starting in a sec...
-#sleep 3
-#echo Jenkins Package is getting started....
-#sudo systemctl start jenkins
-#echo
-#echo
-#echo
+log "Adding Jenkins repository and installing Jenkins..."
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update -y
+sudo apt-get install -y jenkins
+if [ $? -ne 0 ]; then
+    log "Failed to install Jenkins."
+    exit 1
+fi
+log "Jenkins installed successfully."
 
+# Start Jenkins service
+log "Starting Jenkins service..."
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+if [ $? -ne 0 ]; then
+    log "Failed to start or enable Jenkins service."
+    exit 1
+fi
+log "Jenkins service started and enabled."
 
-#ADD JENKINS TO DOCKER GROUP - SO THAT JENKINS CAN HAVE ACCESS TO USE DOCKER
-#echo Jenkins user added to docker group
-#sudo usermod -aG docker jenkins
+# Add Jenkins to Docker group
+log "Adding Jenkins to Docker group..."
+sudo usermod -aG docker jenkins
+if [ $? -ne 0 ]; then
+    log "Failed to add Jenkins to Docker group."
+    exit 1
+fi
+log "Jenkins added to Docker group successfully."
 
+log "All tasks completed successfully. Bye!"
 
-#echo JOB SUCCESSFULLY COMPLETED!!!!!
-#echo BYE
-
-
-
-
+# End of script
